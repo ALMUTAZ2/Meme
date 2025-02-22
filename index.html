@@ -1,147 +1,187 @@
 
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>هدية مميزة</title>
-<style>
-  /* ... نفس الـ CSS السابق ... */
-  #soundControl {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 15px 25px;
-    background: #ff1493;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    z-index: 1000;
-    font-size: 18px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  }
-  
-  #soundControl:hover {
-    background: #ff69b4;
-  }
-  
-  #audioStatus {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    color: #ff1493;
-    background: white;
-    padding: 10px;
-    border-radius: 5px;
-    display: none;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>هدية مميزة</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .background-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.3);
+      z-index: 0;
+    }
+
+    .center-point {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+    }
+
+    .emoji {
+      position: absolute;
+      font-size: 2rem;
+      transform-origin: center;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    @keyframes explode {
+      0% {
+        transform: translate(-50%, -50%) scale(0.1) rotate(0deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), var(--ty)) scale(1) rotate(var(--rot));
+        opacity: 0;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    #message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      color: #ff1493;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 20, 147, 0.3);
+      display: none;
+      font-family: 'Arial', sans-serif;
+      z-index: 3;
+      opacity: 0;
+      animation: fadeIn 2s ease-in-out forwards;
+    }
+
+    #audioPlayer {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-<img class="background-image" src="https://d41chssnpqdne.cloudfront.net/user_upload_by_module/chat_bot/files/26334481/06rRtLthpCv2BnWD.jpeg?Expires=1741454972&Signature=k1iA8O012esopD79Pg6IcPzSLCR363p5NBn4GZeRGycC~LDRH3sb7WwYuf3DIYkAUw5cCsemVZmuf0lZjX0UIt7wrKJIrqEzEpHJGBr1U7XTX7UIqttXGsmpoj-DcxdY5Z44P7Sd8MvW6hETpHt0KG49iZNCsqspf7eoWXxR7fOgdRsIw88sahYscgHemMe8aC4dYdfWOshIeqyffyeScG9dWc6gtuzLHqarPTUip9xMqQHbW0GSL4NijSSkKljq~0d8LK9V6iir8jI6TD86Qn2nJtYHz484YWpcCZYPAD2UFTT9fKFs58xpOEp67TgaEjR8QYGUL2bPb1YpTPT3HA__&Key-Pair-Id=K3USGZIKWMDCSX" alt="تفاصيل الطلب">
-<div class="overlay"></div>
-<div class="center-point"></div>
-<div id="message">هدية زواجنا من زوجك أبو محمد ❤️</div>
-
-<div id="audioStatus">جاري تحميل الصوت...</div>
-<button id="soundControl">▶️ تشغيل الصوت</button>
-
-<!-- جرب أحد هذه المسارات -->
-<audio id="audioPlayer">
-  <source src="meme.mp3" type="audio/mp3">
-  <source src="/meme.mp3" type="audio/mp3">
-  <source src="./meme.mp3" type="audio/mp3">
-  <!-- إذا كان الملف في مجلد assets -->
-  <source src="assets/meme.mp3" type="audio/mp3">
-</audio>
-
-<script>
-  const audio = document.getElementById('audioPlayer');
-  const soundControl = document.getElementById('soundControl');
-  const audioStatus = document.getElementById('audioStatus');
-  let animationRunning = true;
-
-  // إظهار حالة تحميل الصوت
-  audioStatus.style.display = 'block';
+  <img class="background-image" src="https://d41chssnpqdne.cloudfront.net/user_upload_by_module/chat_bot/files/26334481/06rRtLthpCv2BnWD.jpeg?Expires=1741454972&Signature=k1iA8O012esopD79Pg6IcPzSLCR363p5NBn4GZeRGycC~LDRH3sb7WwYuf3DIYkAUw5cCsemVZmuf0lZjX0UIt7wrKJIrqEzEpHJGBr1U7XTX7UIqttXGsmpoj-DcxdY5Z44P7Sd8MvW6hETpHt0KG49iZNCsqspf7eoWXxR7fOgdRsIw88sahYscgHemMe8aC4dYdfWOshIeqyffyeScG9dWc6gtuzLHqarPTUip9xMqQHbW0GSL4NijSSkKljq~0d8LK9V6iir8jI6TD86Qn2nJtYHz484YWpcCZYPAD2UFTT9fKFs58xpOEp67TgaEjR8QYGUL2bPb1YpTPT3HA__&Key-Pair-Id=K3USGZIKWMDCSX" alt="تفاصيل الطلب">
+  <div class="overlay"></div>
+  <div class="center-point"></div>
+  <div id="message">هدية زواجنا من زوجك أبو محمد ❤️</div>
   
-  audio.addEventListener('loadeddata', function() {
-    audioStatus.textContent = 'تم تحميل الصوت بنجاح';
-    setTimeout(() => {
-      audioStatus.style.display = 'none';
-    }, 2000);
-  });
+  <audio id="audioPlayer" loop>
+    <source src="meme.mp3" type="audio/mp3">
+  </audio>
 
-  audio.addEventListener('error', function(e) {
-    audioStatus.textContent = 'حدث خطأ في تحميل الصوت';
-    audioStatus.style.color = 'red';
-    console.error('Audio error:', e);
-  });
+  <script>
+    const audio = document.getElementById('audioPlayer');
+    let animationRunning = true;
 
-  // التحكم بالصوت
-  soundControl.addEventListener('click', function() {
-    if (audio.paused) {
+    // محاولة تشغيل الصوت تلقائياً
+    function tryToPlayAudio() {
       const playPromise = audio.play();
       if (playPromise !== undefined) {
-        playPromise.then(_ => {
-          soundControl.textContent = "⏸️ إيقاف الصوت";
-        })
-        .catch(error => {
-          console.error('Error playing audio:', error);
-          audioStatus.textContent = 'حدث خطأ في تشغيل الصوت';
-          audioStatus.style.display = 'block';
+        playPromise.catch(error => {
+          // إذا فشل التشغيل التلقائي، نضيف مستمع للنقر
+          document.addEventListener('click', function playOnClick() {
+            audio.play();
+            document.removeEventListener('click', playOnClick);
+          }, { once: true });
         });
       }
-    } else {
-      audio.pause();
-      soundControl.textContent = "▶️ تشغيل الصوت";
     }
-  });
 
-  // بقية الكود كما هو...
-  const emojis = ['🎉', '🎁', '💥', '💌', '🎉', '🎁'];
-  const centerPoint = document.querySelector('.center-point');
+    // تشغيل الصوت عند تحميل الصفحة
+    window.addEventListener('load', tryToPlayAudio);
+    
+    // محاولة ثانية للتشغيل بعد تفاعل المستخدم
+    document.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+      }
+    });
 
-  function createEmoji() {
-    if (!animationRunning) return;
+    const emojis = ['🎉', '🎁', '💥', '💌', '🎉', '🎁'];
+    const centerPoint = document.querySelector('.center-point');
 
-    const emoji = document.createElement('div');
-    emoji.className = 'emoji';
-    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    function createEmoji() {
+      if (!animationRunning) return;
 
-    const angle = Math.random() * Math.PI * 2;
-    const distance = Math.random() * 300 + 100;
-    const tx = Math.cos(angle) * distance;
-    const ty = Math.sin(angle) * distance;
-    const rotation = Math.random() * 720 - 360;
+      const emoji = document.createElement('div');
+      emoji.className = 'emoji';
+      emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
 
-    emoji.style.setProperty('--tx', `${tx}px`);
-    emoji.style.setProperty('--ty', `${ty}px`);
-    emoji.style.setProperty('--rot', `${rotation}deg`);
+      const angle = Math.random() * Math.PI * 2;
+      const distance = Math.random() * 300 + 100;
+      const tx = Math.cos(angle) * distance;
+      const ty = Math.sin(angle) * distance;
+      const rotation = Math.random() * 720 - 360;
 
-    emoji.style.animation = `explode 2s ease-out forwards`;
+      emoji.style.setProperty('--tx', `${tx}px`);
+      emoji.style.setProperty('--ty', `${ty}px`);
+      emoji.style.setProperty('--rot', `${rotation}deg`);
 
-    centerPoint.appendChild(emoji);
+      emoji.style.animation = `explode 2s ease-out forwards`;
+
+      centerPoint.appendChild(emoji);
+
+      setTimeout(() => {
+        emoji.remove();
+      }, 2000);
+    }
+
+    const intervalId = setInterval(createEmoji, 200);
 
     setTimeout(() => {
-      emoji.remove();
-    }, 2000);
-  }
-
-  const intervalId = setInterval(createEmoji, 200);
-
-  setTimeout(() => {
-    animationRunning = false;
-    clearInterval(intervalId);
-    
-    const emojis = document.querySelectorAll('.emoji');
-    emojis.forEach(emoji => emoji.remove());
-    
-    setTimeout(() => {
-      const message = document.getElementById('message');
-      message.style.display = 'block';
-    }, 1000);
-  }, 10000);
-</script>
+      animationRunning = false;
+      clearInterval(intervalId);
+      
+      const emojis = document.querySelectorAll('.emoji');
+      emojis.forEach(emoji => emoji.remove());
+      
+      setTimeout(() => {
+        const message = document.getElementById('message');
+        message.style.display = 'block';
+      }, 1000);
+    }, 10000);
+  </script>
 </body>
 </html>
