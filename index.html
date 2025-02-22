@@ -95,10 +95,6 @@
       opacity: 0;
       animation: fadeIn 2s ease-in-out forwards;
     }
-
-    #audioPlayer {
-      display: none;
-    }
   </style>
 </head>
 <body>
@@ -107,7 +103,7 @@
   <div class="center-point"></div>
   <div id="message">هدية زواجنا من زوجك أبو محمد ❤️</div>
   
-  <audio id="audioPlayer" loop>
+  <audio id="audioPlayer" autoplay loop>
     <source src="meme.mp3" type="audio/mp3">
   </audio>
 
@@ -115,29 +111,18 @@
     const audio = document.getElementById('audioPlayer');
     let animationRunning = true;
 
-    // محاولة تشغيل الصوت تلقائياً
-    function tryToPlayAudio() {
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          // إذا فشل التشغيل التلقائي، نضيف مستمع للنقر
-          document.addEventListener('click', function playOnClick() {
-            audio.play();
-            document.removeEventListener('click', playOnClick);
-          }, { once: true });
-        });
-      }
+    // تشغيل الصوت تلقائياً
+    function playAudio() {
+      audio.play().catch(() => {
+        // إذا فشل التشغيل التلقائي، نحاول مرة أخرى عند أول تفاعل
+        document.addEventListener('click', () => {
+          audio.play();
+        }, { once: true });
+      });
     }
 
     // تشغيل الصوت عند تحميل الصفحة
-    window.addEventListener('load', tryToPlayAudio);
-    
-    // محاولة ثانية للتشغيل بعد تفاعل المستخدم
-    document.addEventListener('click', () => {
-      if (audio.paused) {
-        audio.play();
-      }
-    });
+    window.addEventListener('load', playAudio);
 
     const emojis = ['🎉', '🎁', '💥', '💌', '🎉', '🎁'];
     const centerPoint = document.querySelector('.center-point');
